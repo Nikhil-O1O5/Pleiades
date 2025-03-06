@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 import { connectDb } from "./utils/connectDb.js"
 import userRouter from "./routes/userRoute.js"
+import eventRouter from "./routes/eventRoute.js";
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.use(cors({
 }))
 
 app.use("/api/user",userRouter);
+app.use("/api/event",eventRouter);
 
 
 app.listen(PORT,()=>{
