@@ -106,6 +106,7 @@ dist
 
 # Docusaurus cache and generated files
 .docusaurus
+!/home/a9irudh/Documents/backend-dev/Pleiades/src/utils/addEvent.js
 
 # Serverless directories
 .serverless/
