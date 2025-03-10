@@ -60,7 +60,7 @@ export const signin = async (req, res) => {
     }
     const secret = process.env.JWT_SECRET;
     const token = jwt.sign({ id: user._id.toString() }, secret, { expiresIn: "30d" });
-    return res.json({ success: true, message: "Logged in successfully", token });
+    return res.status(200).json({ success: true, message: "Logged in successfully", token });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, message: error.errors[0].message });
@@ -78,7 +78,7 @@ export const logout = async (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 0  
     });
-    return res.json({ success: true, message: "Logged Out Successfully" });
+    return res.status(200).json({ success: true, message: "Logged Out Successfully" });
   } catch (error) {
     console.error('Error in logout controller', error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -120,7 +120,7 @@ export const sendVerifyOtp = async (req, res) => {
       };
 
       await transporter.sendMail(mailOptions);
-      return res.json({ success: true, message: "Verification OTP Sent On Email" });
+      return res.status(200).json({ success: true, message: "Verification OTP Sent On Email" });
 
   } catch (error) {
       console.error("Error in sendVerifyOtp controller:", error);
@@ -210,7 +210,7 @@ export const sendPasswordResetOtp = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    return res.json({ success: true, message: "Password Reset OTP Sent On Email" });
+    return res.status(200).json({ success: true, message: "Password Reset OTP Sent On Email" });
     
   } catch (error) {
     console.error("Error in ResetOtp controller", error);
