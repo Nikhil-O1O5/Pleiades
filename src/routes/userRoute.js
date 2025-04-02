@@ -13,4 +13,6 @@ userRouter.post("/isauthenticated",userAuth,isAuthenticated);
 userRouter.post("/passwordresetotp",sendPasswordResetOtp);
 userRouter.post("/resetPassword",resetPassword);
 
+userRouter.post("/registerEvent/:id", userAuth, registerEvent);
+
 export default userRouter

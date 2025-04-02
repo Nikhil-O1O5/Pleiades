@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema({
   isAccountVerified: { type: Boolean, default: false },
   resetOtp: { type: String, default: '' },
   resetOtpExpireAt: { type: Number, default: 0 },
-  college : {type : String, required: true}
+  college : {type : String, required: true},
+  registeredEvents : {type : [String], default: []},
+  registeredEventsCount : {type : Number, default: 0},
 });
 
 export default mongoose.model("User", userSchema);
