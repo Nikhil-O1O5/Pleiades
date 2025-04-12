@@ -12,8 +12,10 @@ const userSchema = new mongoose.Schema({
   resetOtp: { type: String, default: '' },
   resetOtpExpireAt: { type: Number, default: 0 },
   college : {type : String, required: true},
-  registeredEvents : {type : [String], default: []},
-  registeredEventsCount : {type : Number, default: 0},
+},
+{
+  timestamps: true
 });
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;

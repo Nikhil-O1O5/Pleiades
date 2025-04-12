@@ -10,6 +10,9 @@ const eventSchema = new mongoose.Schema({
   organizerEmail: { type: String, required: true },
   organizerPhoneNo: { type: String, required: true },
   rules: [{ type: String, required: true }],
+},
+{
+  timestamps: true
 });
 
 const Event = mongoose.model('Event', eventSchema);
