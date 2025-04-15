@@ -4,6 +4,7 @@ import userModel from "../models/userModel.js";
 import Event from "../models/eventModel.js";
 import transporter from "../utils/nodemailer.js";
 import { z } from "zod";
+import { generateQRCodeBase64 } from "../utils/qrcodeMaker.js";
 
 const signupSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -11,7 +12,8 @@ const signupSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Invalid date format (YYYY-MM-DD)" }), 
   phoneNo: z.string().regex(/^\d{10}$/, { message: "Phone number must be 10 digits" }),
-  college : z.string().max(50,{message : "College name is required"})
+  college: z.string().max(50, { message: "College name is required" }),
+  collegeSRN: z.string().min(1, { message: "College SRN is required" }),
 });
 
 const signinSchema = z.object({
@@ -22,14 +24,39 @@ const signinSchema = z.object({
 export const signup = async (req, res) => {
   try {
     const parsedBody = signupSchema.parse(req.body);
-    const { name, email, password, dob, phoneNo, college } = parsedBody;
-    const user = await userModel.findOne({ email });
-    if (user) {
+    const { name, email, password, dob, phoneNo, college, collegeSRN } = parsedBody;
+
+    const userExists = await userModel.findOne({ email });
+    if (userExists) {
       return res.status(401).json({ success: false, message: "User already exists" });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const dobTimestamp = Math.floor(new Date(dob).getTime() / 1000);  
-    await userModel.create({ name, email, password: hashedPassword, phoneNo, DOB: dobTimestamp, college });
+    const dobTimestamp = Math.floor(new Date(dob).getTime() / 1000);
+
+    const lastUser = await userModel.findOne().sort({ registrationNumber: -1 });
+    const registrationNumber = lastUser?.registrationNumber ? lastUser.registrationNumber + 1 : 100000;
+
+    const qrData = {
+      name,
+      college,
+      collegeSRN,
+      registrationNumber,
+    };
+    const userQrCode = await generateQRCodeBase64(qrData);
+
+    await userModel.create({
+      name,
+      email,
+      password: hashedPassword,
+      phoneNo,
+      DOB: dobTimestamp,
+      college,
+      collegeSRN,
+      registrationNumber,
+      userQrCode,
+    });
+
     const mailOptions = {
       from: process.env.SENDER_EMAIL || "",
       to: email,
@@ -37,6 +64,7 @@ export const signup = async (req, res) => {
       text: `Welcome to Pleiades website. Your account has been created with email id ${email}`,
     };
     await transporter.sendMail(mailOptions);
+
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -253,5 +281,24 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
       console.error("Error in resetPassword controller", error);
       res.status(500).json({success : false,message : "Internal Server Error"});
+  }
+}
+
+export const getUserDetails = async (req, res) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const user = await userModel.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    
+    return res.status(200).json({ success: true, user});
+  } catch (error) {
+    console.error("Error in getUserDetails controller:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }

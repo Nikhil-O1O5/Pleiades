@@ -1,14 +1,12 @@
 import QRCode from 'qrcode';
-import { writeFile } from 'fs/promises';
 
-export async function makeQr(data, filename = 'qrcode_with_json.png') {
-
+export  async function generateQRCodeBase64(data) {
   try {
     const jsonData = JSON.stringify(data);
-    const buffer = await QRCode.toBuffer(jsonData);
-    await writeFile(filename, buffer);
-    console.log(`QR code saved to ${filename}`);
+    const base64Image = await QRCode.toDataURL(jsonData);
+    return base64Image;
   } catch (err) {
-    console.error("Error generating QR code:", err);
+    console.error("Error generating base64 QR code:", err);
+    throw err;
   }
 }
