@@ -419,16 +419,15 @@ you have succesfully registered for the event but youre payment is pending .. so
 
 export const registerIndividualEvent = async (req, res) => {
   try {
-    const { eventId, userId, name, email, phoneNumber } = req.body;
+    const { eventName, name, email, phoneNumber } = req.body;
 
-    if (!eventId || !userId || !name || !email || !phoneNumber) {
+    if (!eventName || !name || !email || !phoneNumber) {
       return res.status(400).json({ success: false, message: "All fields are required for individual registration" });
     }
 
     // Store individual registration details
     await indRegistrationModel.create({
-      eventId,
-      userId,
+      eventName
       name,
       email,
       phoneNumber,
@@ -452,14 +451,14 @@ export const registerIndividualEvent = async (req, res) => {
 
 export const registerTeamEvent = async (req, res) => {
   try {
-    const { eventId, teamName, members } = req.body;
+    const { eventName, teamName, members } = req.body;
 
-    if (!eventId || !teamName || !members || members.length === 0) {
+    if (!eventName || !teamName || !members || members.length === 0) {
       return res.status(400).json({ success: false, message: "All fields are required for team registration" });
     }
 
     await teamRegistrationModel.create({
-      eventId,
+      eventName,
       teamName,
       members,
     });
