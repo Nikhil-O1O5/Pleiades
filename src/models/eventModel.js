@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const eventSchema = new mongoose.Schema({
   eventname: { type: String, required: true },
   date: { type: Date, required: true },
+  type: { type: String, enum: ['team', 'individual'], required: true },
   venue: { type: String, required: true },
   shortDescription: { type: String, required: true },
   price : { type: Number, required: true },

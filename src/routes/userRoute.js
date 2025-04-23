@@ -7,10 +7,10 @@ const userRouter = express.Router();
 userRouter.post("/signin",signin);
 userRouter.post("/signup",signup);
 userRouter.post("/logout",logout);
-userRouter.post("/verifyotp",userAuth,sendVerifyOtp);
-userRouter.post("/verifyaccount",userAuth,verifyEmail);
+userRouter.post("/verifyotp",sendVerifyOtp);
+userRouter.post("/verifyaccount",verifyEmail);
 userRouter.post("/isauthenticated",userAuth,isAuthenticated);
 userRouter.post("/passwordresetotp",sendPasswordResetOtp);
 userRouter.post("/resetPassword",resetPassword);
 userRouter.get("/userDetails", userAuth, getUserDetails);
-export default userRouter
+export default userRouter
