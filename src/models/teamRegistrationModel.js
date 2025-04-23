@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 
 const teamRegistrationSchema = new mongoose.Schema({
-  eventId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Event",
+  eventName: {
+    type: String,
     required: true,
   },
   teamName: {
@@ -12,11 +11,6 @@ const teamRegistrationSchema = new mongoose.Schema({
   },
   members: [
     {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
       name: {
         type: String,
         required: true,

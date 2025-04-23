@@ -1,14 +1,8 @@
 import mongoose from "mongoose";
 
 const indRegistrationSchema = new mongoose.Schema({
-  eventId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Event",
-    required: true,
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+  eventName: {
+    type: String,
     required: true,
   },
   name: {
