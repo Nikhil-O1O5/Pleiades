@@ -1,6 +1,6 @@
 import express from "express"
 import userAuth from "../middleware/userMiddleware.js";
-import { signin, signup, logout, sendVerifyOtp, verifyEmail, isAuthenticated, sendPasswordResetOtp, resetPassword, getUserDetails } from "../controllers/userController.js";
+import { signin, signup, logout, sendVerifyOtp, verifyEmail, isAuthenticated, sendPasswordResetOtp, resetPassword, getUserDetails, getEventDetails, registerIndividualEvent, registerTeamEvent } from "../controllers/userController.js";
 
 const userRouter = express.Router();
 
@@ -13,4 +13,7 @@ userRouter.post("/isauthenticated",userAuth,isAuthenticated);
 userRouter.post("/passwordresetotp",sendPasswordResetOtp);
 userRouter.post("/resetPassword",resetPassword);
 userRouter.get("/userDetails", userAuth, getUserDetails);
+userRouter.post("/registerIndEvent", userAuth, registerIndividualEvent);
+userRouter.post("/registerTeamEvent", userAuth, registerTeamEvent);
+userRouter.get("/getEventDetails", userAuth, getEventDetails);
 export default userRouter

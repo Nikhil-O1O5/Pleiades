@@ -425,9 +425,15 @@ export const registerIndividualEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: "All fields are required for individual registration" });
     }
 
+    // check if the user hasnt signedup
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     // Store individual registration details
     await indRegistrationModel.create({
-      eventName
+      eventName,
       name,
       email,
       phoneNumber,
@@ -480,3 +486,46 @@ export const registerTeamEvent = async (req, res) => {
   }
 };
 
+
+export const getEventDetails = async(req, res) => {
+  /*
+      * get userId from jwt
+      * get user Email from user model using userId
+      * get all the events registered by the user from individual and Team registration
+  */
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // console.log("user: ", user)
+
+    const userEmail = user.email;
+    // get all the events in db
+    // console.log("All Registered Events:", allRegEvents);
+
+    const individualEvents = await indRegistrationModel.find({email :userEmail});
+    // console.log("Individual Events:", individualEvents);
+
+    // Fetch team event registrations where the user is a member
+    const teamEvents = await teamRegistrationModel.find({
+      "members.email": userEmail,
+    });
+
+    return res.status(200).json({
+      success: true,
+      individualEvents,
+      teamEvents,
+    });
+  } catch (error) {
+    console.error("Error in getEventDetails controller:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
