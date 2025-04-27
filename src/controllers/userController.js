@@ -430,6 +430,17 @@ export const registerIndividualEvent = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+    // check if he has already registered for the event 
+    const existingRegistration = await indRegistrationModel.findOne({
+      eventName,
+      email,
+    });
+
+    if (existingRegistration) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already registered for this event" });
+    }
 
     // Store individual registration details
     await indRegistrationModel.create({
@@ -526,6 +537,31 @@ export const getEventDetails = async(req, res) => {
     });
   } catch (error) {
     console.error("Error in getEventDetails controller:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+
+export const checkUniqueTeam = async(req, res) => {
+  // get teamname and event name from req.body and check if the team exists 
+  try {
+    const { teamName, eventName } = req.body;
+    const trimmedTeamName = teamName.trim();
+    const trimmedEventName = eventName.trim();
+
+    if (!teamName || !eventName) {
+      return res.status(400).json({ success: false, message: "Team name and event name are required" });
+    }
+
+    const existingTeam = await teamRegistrationModel.findOne({ teamName, eventName });
+
+    if (existingTeam) {
+      return res.status(400).json({ success: false, message: "Team name is already registered for this event" });
+    }
+
+    return res.status(200).json({ success: true, message: "Team name is unique for this event" });
+  } catch (error) {
+    console.error("Error in checkUniqueTeam controller:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
