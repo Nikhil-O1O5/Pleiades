@@ -11,7 +11,7 @@ if (!smtpUser || !smtpPassword) {
 }
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
+  host: 'smtp.gmail.com',
   port: 587,
   auth: {
     user: smtpUser,

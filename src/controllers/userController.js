@@ -425,12 +425,10 @@ export const registerIndividualEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: "All fields are required for individual registration" });
     }
 
-    // check if the user hasnt signedup
     const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    // check if he has already registered for the event 
     const existingRegistration = await indRegistrationModel.findOne({
       eventName,
       email,
@@ -442,7 +440,6 @@ export const registerIndividualEvent = async (req, res) => {
         .json({ success: false, message: "User already registered for this event" });
     }
 
-    // Store individual registration details
     await indRegistrationModel.create({
       eventName,
       name,
@@ -450,7 +447,6 @@ export const registerIndividualEvent = async (req, res) => {
       phoneNumber,
     });
 
-    // Send email to the user
     const mailOptions = {
       from: process.env.SENDER_EMAIL || "",
       to: email,
@@ -571,6 +567,55 @@ export const checkUniqueTeam = async (req, res) => {
       .json({ success: true, message: "Team name is unique for this event" });
   } catch (error) {
     console.error("Error in checkUniqueTeam controller:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
+export const sendReminderEmails = async (_, res) => {
+  try {
+    const individualRegistrations = await indRegistrationModel.find({});
+    const teamRegistrations = await teamRegistrationModel.find({});
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL || "",
+      subject: "Reminder to complete Your PLEIADES registration",
+      text: `Dear Participant,\n\nThis is a gentle reminder to complete your one-time registration payment of ₹472 if you haven’t done so already. Please complete your registration from www.kletupleiades.com and pay at https://smartpay.easebuzz.in/84161/9fb8d3513d234ecebe852ced64d6aaa3\n\nIf you have already completed the payment, kindly ignore this message.\n\nNote: Registrations close on 7th May at 1:00 PM, so please make sure to register before the deadline.\n\nBest regards,\nOrganising Committee\nPLEIADES`,
+    };
+
+    for (const registration of individualRegistrations) {
+      if (registration.email) {
+        try {
+          await transporter.sendMail({ ...mailOptions, to: registration.email });
+        } catch (error) {
+          console.error(`Failed to send email to ${registration.email}:`, error);
+        }
+      } else {
+        console.error(`Invalid email for individual registration: ${registration}`);
+      }
+    }
+
+    for (const team of teamRegistrations) {
+      for (const member of team.members) {
+        if (member.email) {
+          try {
+            await transporter.sendMail({ ...mailOptions, to: member.email });
+          } catch (error) {
+            console.error(`Failed to send email to ${member.email}:`, error);
+          }
+        } else {
+          console.error(`Invalid email for team member: ${member}`);
+        }
+      }
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Reminder emails sent successfully" });
+  } catch (error) {
+    console.error("Error in sendReminderEmails controller:", error);
     return res
       .status(500)
       .json({ success: false, message: "Internal Server Error" });
